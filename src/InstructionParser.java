@@ -254,13 +254,12 @@ public class InstructionParser {
 		} else {
 			return false;
 		}
-
-		if (input.get(1).matches("[a-zA-Z]+")) {
+		if (input.get(1).trim().matches("[a-zA-Z]+")) {
 			lineCode.address = input.get(1);
 		} else if (input.get(1).equals("$ra") && ! lineCode.operand.equals("jal")) {
 			lineCode.rt = "$ra";
 		} else {
-			System.out.println("error in second parameter");
+			System.out.println("error in second parameter in J instruction : " + input.get(0));
 			return false;
 		}
 

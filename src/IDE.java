@@ -17,7 +17,6 @@ import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
-import javax.swing.border.TitledBorder;
 import javax.swing.JTextField;
 
 public class IDE extends JFrame {        /////////////////////////   check sw and lw errors  ....    check all errors 
@@ -27,7 +26,6 @@ public class IDE extends JFrame {        /////////////////////////   check sw an
 	JEditorPane assemblycode = new JEditorPane();
 	JEditorPane machinecode = new JEditorPane();
 	JEditorPane memory = new JEditorPane();
-	int instructionIndex = 0 ;
 	AssemblyCoder machineCode;
 	VirtualMachine VM = new VirtualMachine(); 
 	String AssemblyCode="";
@@ -125,18 +123,18 @@ public class IDE extends JFrame {        /////////////////////////   check sw an
 			public void actionPerformed(ActionEvent e) {
 				
 				String message = " no lines available to run !!" ;
-				if(machineCode.instructions.size() == instructionIndex || assemblycode.getText().isEmpty()) {
+				//
+				if(machineCode.instructions.size() == VM.ProgramCounter || assemblycode.getText().isEmpty()) {
 					  JOptionPane.showMessageDialog(new JFrame(), message, "Error",
 						        JOptionPane.ERROR_MESSAGE);
-					  instructionIndex = 0;
+					  VM.ProgramCounter = 0 ;
 				} else {
-				ProgramCount.setText(Integer.toString(instructionIndex+1));
-				AssemblyCode = machineCode.getLineLine(instructionIndex);
+				AssemblyCode = machineCode.getLineLine(VM.ProgramCounter);
 				machinecode.setText(machinecode.getText() + AssemblyCode);
 				VM.virtualMachine(AssemblyCode);
 				memory.setText(VM.setMemory());
 				registers.setText(VM.setRegisters());
-				instructionIndex = instructionIndex + 1;
+				ProgramCount.setText(Integer.toString(VM.ProgramCounter));
 				}
 			}
 		});

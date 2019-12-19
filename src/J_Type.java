@@ -35,11 +35,10 @@ public class J_Type {
 		
 		if(JType.operand.equals("jal")) {
 			machineCode.add("000011");
-			machineCode.add(to26bitBinary(indexJumb(JType.address)));
+			machineCode.add(to26bitBinary((indexJumb(JType.address.trim())+1)*4 ));
 			
 		}
 		else if(JType.operand.equals("j")) {
-			System.out.println(to26bitBinary(indexJumb(JType.address)));
 			machineCode.add("000010");
 			machineCode.add(to26bitBinary(indexJumb(JType.address)));
 		

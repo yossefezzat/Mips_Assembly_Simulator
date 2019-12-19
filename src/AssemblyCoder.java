@@ -18,7 +18,7 @@ public class AssemblyCoder {
 		for (int i = 0; i < lines.length; i++) {
 			inst = new InstructionParser(lines[i], i);
 			inst.runInstruction(inst.tempList);
-//			if (validate == false) {
+//			if (validate == false) {  // compilation error
 //				System.out.println(" error in code line number: " + (i+1));
 //				break;
 //			}
@@ -81,12 +81,12 @@ public class AssemblyCoder {
 			System.out.println("not defined a type !! ");
 		}
 		for (String str : parse) {
-			if(!(this.instructions.get(i).lineCode.type.equals("L")))
+			if(!(this.instructions.get(i).lineCode.type.equals("L") ) )
 				machineCodeLine += str + " ";
 			else 
 				machineCodeLine = str;
 		}
-		if(!(i == this.instructions.size()-1) )  /// because it add in last line
+//		if(!(i == this.instructions.size()-1) )  /// because it add in last line
 			machineCodeLine += "\n";
 		
 		return machineCodeLine;

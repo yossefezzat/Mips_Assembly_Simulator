@@ -4,8 +4,10 @@ public class VirtualMachine {
 
 	Registers registers ;
 	MemData [] memory;
+	Integer ProgramCounter;
 	
 	public VirtualMachine() {
+		this.ProgramCounter = 0;
 		this.registers = new Registers();
 		this.registers.setRegistersMain();
 		memory = new MemData[50];
@@ -206,12 +208,20 @@ public class VirtualMachine {
 		this.registers.registers.set(indexReg1, reg1);
 	}
 	
+	public void jal(String address) {
+		int index_ra = this.getRegister("11111");
+		Data registerRa = this.registers.registers.get(index_ra);
+		registerRa.valueReg = this.ProgramCounter+1 ;
+ 		Integer jalTo = Integer.parseInt(address , 2);
+		this.ProgramCounter = jalTo / 4 ;
+		this.registers.registers.set(index_ra, registerRa);
+	}
+	
 	public void sll(String reg1Code , String reg2Code , String shmt) {
 		
 		int indexReg1 = getRegister(reg1Code);
 		int indexReg2 = getRegister(reg2Code);
 		int shamtValue = this.binaryTodecimal(shmt);
-		System.out.println(shamtValue);
 		Data reg1 = this.registers.registers.get(indexReg1);
 		Data reg2 = this.registers.registers.get(indexReg2);
 		
@@ -220,6 +230,12 @@ public class VirtualMachine {
 		this.registers.registers.set(indexReg1, reg1);
 	}
 	
+	public void jr(String reg1Code) {
+		int indexReg1 = getRegister(reg1Code);
+		Data reg1 = this.registers.registers.get(indexReg1);
+		this.ProgramCounter = reg1.valueReg-1;
+		
+	}
 	
 	/*********************************** End R-Type  *************************************/
 	
@@ -227,15 +243,20 @@ public class VirtualMachine {
 	
 	
 	public void virtualMachine(String machineCode) {
+		 this.ProgramCounter ++ ;
 		machineCode = machineCode.trim(); //remove the last space in the string of machine code :D <3 7sbayah w n3m el wakel  
-		
 		String [] machineCodeParts = machineCode.split(" ");
-		System.out.println("|" + machineCodeParts[machineCodeParts.length-1]+"|");
-//		System.out.println("|"+machineCodeParts[machineCodeParts.length - 1 ] + "|");
+		boolean j_type = false;
+	/************************************* J-type *********************************************/	
+		
+	   if(machineCodeParts[0].equals("000011")) {
+		   j_type = true ;
+		   this.jal(machineCodeParts[1]);
+	   }
 		
 	/************************************* I-Type *********************************************/
 		
-		if(machineCodeParts[0].equals("001000")) {
+	   else if(machineCodeParts[0].equals("001000")) {
 			this.addi(machineCodeParts[1], machineCodeParts[2], machineCodeParts[3]);
 		}
 		else if(machineCodeParts[0].equals("001100")) {
@@ -258,7 +279,6 @@ public class VirtualMachine {
 		
 		// ay trim();  bsheel feha ay space b3d el parsing bta3 el machinecode t2keed 2n mfesh space 
 		else if(machineCodeParts[0].equals("000000") && machineCodeParts[machineCodeParts.length-1].equals("100000")) {
-			System.out.println("here add 2 regs");
 			this.add(machineCodeParts[3].trim(), machineCodeParts[2].trim(), machineCodeParts[1].trim());
 		}
 		
@@ -282,11 +302,9 @@ public class VirtualMachine {
 			this.slt(machineCodeParts[2].trim(), machineCodeParts[1].trim(), machineCodeParts[3].trim());
 		}
 		else if(machineCodeParts[0].equals("000000") && machineCodeParts[machineCodeParts.length-1].equals("001000")) {
-			this.jr(machineCodeParts[1].trim());
+			this.jr(machineCodeParts[2].trim());  // edit register in function
 		}
-		
-
-		
+		  
 		
 	}
 	
