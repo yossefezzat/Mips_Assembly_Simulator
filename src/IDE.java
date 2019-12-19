@@ -2,7 +2,9 @@
 import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
 import javax.swing.JEditorPane;
 import javax.swing.BorderFactory;
 import java.awt.Color;
@@ -13,18 +15,23 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+import javax.swing.border.TitledBorder;
+import javax.swing.JTextField;
 
 public class IDE extends JFrame {        /////////////////////////   check sw and lw errors  ....    check all errors 
-
+	 Border Darkline = BorderFactory.createLineBorder(Color.DARK_GRAY);
 	private JPanel contentPane;
-	private JTextArea textArea = new JTextArea();
-	JEditorPane editorPane = new JEditorPane();
-	JEditorPane editorPane_1 = new JEditorPane();
-	JEditorPane editorPane_2 = new JEditorPane();
+	private JTextArea registers = new JTextArea();
+	JEditorPane assemblycode = new JEditorPane();
+	JEditorPane machinecode = new JEditorPane();
+	JEditorPane memory = new JEditorPane();
 	int instructionIndex = 0 ;
 	AssemblyCoder machineCode;
 	VirtualMachine VM = new VirtualMachine(); 
 	String AssemblyCode="";
+	private JTextField ProgramCount;
 	
 	
 	/**
@@ -48,33 +55,34 @@ public class IDE extends JFrame {        /////////////////////////   check sw an
 	 */
 	public IDE() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(0, 0, 1200, 700);
+		setBounds(0, 0, 1350, 700);
 		contentPane = new JPanel();
 		contentPane.setBackground(Color.LIGHT_GRAY);
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
 		JScrollPane scrollPane_1 = new JScrollPane();
-		scrollPane_1.setBounds(10, 118, 574, 339);
+		scrollPane_1.setBounds(10, 118, 574, 293);
 		contentPane.add(scrollPane_1);
-		scrollPane_1.setViewportView(editorPane);
+		scrollPane_1.setViewportView(assemblycode);
 		
 		
-		editorPane.setFont(new Font("Arial", Font.PLAIN, 14));
-		editorPane.setForeground(Color.BLACK);
-		editorPane.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0)));
+		assemblycode.setFont(new Font("Arial Unicode MS", Font.ITALIC, 14));
+		assemblycode.setForeground(Color.BLACK);
+		assemblycode.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0)));
 		
 		JScrollPane scrollPane_2 = new JScrollPane();
 		scrollPane_2.setBounds(10, 468, 574, 182);
 		contentPane.add(scrollPane_2);
-		scrollPane_2.setViewportView(editorPane_1);
+		machinecode.setEditable(false);
+		scrollPane_2.setViewportView(machinecode);
 		
 		
 		
-		editorPane_1.setForeground(Color.BLACK);
-		editorPane_1.setFont(new Font("Arial", Font.PLAIN, 14));
-		editorPane_1.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0)));
+		machinecode.setForeground(Color.BLACK);
+		machinecode.setFont(new Font("Arial Unicode MS", Font.ITALIC, 16));
+		machinecode.setBorder(Darkline);
 		
 		
 		
@@ -84,11 +92,11 @@ public class IDE extends JFrame {        /////////////////////////   check sw an
 			public void actionPerformed(ActionEvent e) {
 				
 				String message = "No Code typed";
-				if(editorPane.getText().isEmpty()) {
+				if(assemblycode.getText().isEmpty()) {
 					JOptionPane.showMessageDialog(new JFrame(), message, "Error",
 					        JOptionPane.ERROR_MESSAGE);
 				} else {
-				AssemblyCode = editorPane.getText();
+				AssemblyCode = assemblycode.getText();
 				machineCode = new AssemblyCoder(AssemblyCode);
 				}
 			}
@@ -102,7 +110,7 @@ public class IDE extends JFrame {        /////////////////////////   check sw an
 			public void actionPerformed(ActionEvent e) {
 				//String coded = machineCode.getMachineCode();
 				String message = "No lines Available";
-				if(editorPane.getText().isEmpty()) {
+				if(assemblycode.getText().isEmpty()) {
 					JOptionPane.showMessageDialog(new JFrame(), message, "Error",
 					        JOptionPane.ERROR_MESSAGE);
 				}
@@ -111,54 +119,109 @@ public class IDE extends JFrame {        /////////////////////////   check sw an
 		});
 		contentPane.add(btnRun);
 		
-		JButton button = new JButton("Run Line by Line");
-		button.setBounds(239, 12, 154, 23);
-		button.addActionListener(new ActionListener() {
+		JButton btnFetchdecodeexcute = new JButton("Fetch+Decode+Excute");
+		btnFetchdecodeexcute.setBounds(239, 12, 154, 23);
+		btnFetchdecodeexcute.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
 				String message = " no lines available to run !!" ;
-				if(machineCode.instructions.size() == instructionIndex || editorPane.getText().isEmpty()) {
+				if(machineCode.instructions.size() == instructionIndex || assemblycode.getText().isEmpty()) {
 					  JOptionPane.showMessageDialog(new JFrame(), message, "Error",
 						        JOptionPane.ERROR_MESSAGE);
 					  instructionIndex = 0;
-					  editorPane_1.setText("");
 				} else {
+				ProgramCount.setText(Integer.toString(instructionIndex+1));
 				AssemblyCode = machineCode.getLineLine(instructionIndex);
-				editorPane_1.setText(editorPane_1.getText() + AssemblyCode);
+				machinecode.setText(machinecode.getText() + AssemblyCode);
 				VM.virtualMachine(AssemblyCode);
-				editorPane_2.setText(VM.setMemory());
-				textArea.setText(VM.setRegisters());
+				memory.setText(VM.setMemory());
+				registers.setText(VM.setRegisters());
 				instructionIndex = instructionIndex + 1;
 				}
 			}
 		});
-		contentPane.add(button);
+		contentPane.add(btnFetchdecodeexcute);
 		
 		JButton btnNewButton_1 = new JButton("Reset");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				VM = new VirtualMachine();
+				registers.setText(VM.setRegisters());
+				memory.setText(VM.setMemory());
+				assemblycode.setText("");
+				machinecode.setText("");
+				ProgramCount.setText("0");
+				
+				
+			}
+		});
 		btnNewButton_1.setBounds(403, 12, 67, 23);
 		contentPane.add(btnNewButton_1);
 		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(650, 34, 290, 616);
+		scrollPane.setBounds(627, 56, 378, 594);
 		contentPane.add(scrollPane);
+		scrollPane.setViewportView(memory);
+		memory.setForeground(Color.BLUE);
 		
 		
-		editorPane_2.setEditable(false);
-		editorPane_2.setFont(new Font("Arial", Font.PLAIN, 11));
-		scrollPane.setViewportView(editorPane_2);
-		editorPane_2.setText(VM.setMemory());
-		
-		JEditorPane editorPane_3 = new JEditorPane();
-		editorPane_3.setBounds(133, 56, 49, 23);
-		contentPane.add(editorPane_3);
-		textArea.setBounds(950, 34, 224, 616);
-		contentPane.add(textArea);
+		memory.setEditable(false);
+		memory.setFont(new Font("Open Sans Semibold", Font.PLAIN, 13));
+		memory.setBorder(Darkline);
+		memory.setText(VM.setMemory());
+		registers.setBounds(1015, 56, 239, 594);
+		contentPane.add(registers);
 		
 		
-		textArea.setFont(new Font("Open Sans", Font.PLAIN, 13));
-		textArea.setForeground(Color.RED);
-		textArea.setEditable(false);
-		textArea.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0)));
-		textArea.setText(VM.setRegisters());
+		registers.setFont(new Font("Open Sans Semibold", Font.PLAIN, 13));
+		registers.setForeground(Color.RED);
+		registers.setEditable(false);
+		registers.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0)));
+		registers.setText(VM.setRegisters());
+		
+		JLabel lblMemory = new JLabel("Memory");
+		lblMemory.setForeground(Color.DARK_GRAY);
+		lblMemory.setFont(new Font("Arial Black", Font.PLAIN, 16));
+		lblMemory.setHorizontalAlignment(SwingConstants.CENTER);
+		lblMemory.setBounds(687, 15, 277, 34);
+		contentPane.add(lblMemory);
+		
+		JLabel lblRegisters = new JLabel("Registers");
+		lblRegisters.setForeground(Color.DARK_GRAY);
+		lblRegisters.setHorizontalAlignment(SwingConstants.CENTER);
+		lblRegisters.setFont(new Font("Arial Black", Font.PLAIN, 16));
+		lblRegisters.setBounds(1002, 15, 239, 34);
+		contentPane.add(lblRegisters);
+		
+		JLabel lblProgramCounter = new JLabel("Program Counter");
+		lblProgramCounter.setHorizontalAlignment(SwingConstants.CENTER);
+		lblProgramCounter.setForeground(Color.DARK_GRAY);
+		lblProgramCounter.setFont(new Font("Arial Black", Font.PLAIN, 16));
+		lblProgramCounter.setBounds(10, 50, 162, 34);
+		contentPane.add(lblProgramCounter);
+		
+		JLabel lblMachineCode = new JLabel("Machine Code");
+		lblMachineCode.setHorizontalAlignment(SwingConstants.CENTER);
+		lblMachineCode.setForeground(Color.DARK_GRAY);
+		lblMachineCode.setFont(new Font("Arial Black", Font.PLAIN, 16));
+		lblMachineCode.setBounds(219, 423, 162, 34);
+		contentPane.add(lblMachineCode);
+		
+		JLabel lblAssemblyCode = new JLabel("Assembly Code");
+		lblAssemblyCode.setHorizontalAlignment(SwingConstants.CENTER);
+		lblAssemblyCode.setForeground(Color.DARK_GRAY);
+		lblAssemblyCode.setFont(new Font("Arial Black", Font.PLAIN, 16));
+		lblAssemblyCode.setBounds(219, 82, 154, 34);
+		contentPane.add(lblAssemblyCode);
+		
+		ProgramCount = new JTextField();
+		ProgramCount.setFont(new Font("Tahoma", Font.BOLD, 16));
+		ProgramCount.setHorizontalAlignment(SwingConstants.CENTER);
+		ProgramCount.setText("0");
+		ProgramCount.setBackground(Color.WHITE);
+		ProgramCount.setEditable(false);
+		ProgramCount.setBounds(182, 53, 50, 29);
+		contentPane.add(ProgramCount);
+		ProgramCount.setColumns(10);
 	}
 }

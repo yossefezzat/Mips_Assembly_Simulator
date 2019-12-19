@@ -37,7 +37,7 @@ public class VirtualMachine {
 	public String setMemory() {
 		String mem = "";
 		for(int i=0 ; i < this.memory.length; i++) {
-			mem += "0x"+ this.memory[i].hexa+ Integer.toHexString((i*4)+4096) + "\t"+ this.memory[i].value + "\n";
+			mem += " " +"0x"+ this.memory[i].hexa+ Integer.toHexString((i*4)+4096) + "\t   " + this.memory[i].value + "\n";
 		}
 		return mem;
 	}
@@ -68,13 +68,11 @@ public class VirtualMachine {
 		int indexReg1 = getRegister(reg1Code);
 		int indexReg2 = getRegister(reg2Code);
 		Integer value = binaryTodecimal(immediate);
-		
+	
 		Data reg1 = this.registers.registers.get(indexReg1);
-		
 		Data reg2 = this.registers.registers.get(indexReg2);
 		
 		reg1.valueReg = reg2.valueReg & value;
-		
 		this.registers.registers.set(indexReg1, reg1);
 	}
 	
@@ -84,7 +82,6 @@ public class VirtualMachine {
 		Integer value = binaryTodecimal(immediate);
 		
 		Data reg1 = this.registers.registers.get(indexReg1);
-		
 		Data reg2 = this.registers.registers.get(indexReg2);
 		
 		reg1.valueReg = reg2.valueReg | value;
@@ -97,7 +94,6 @@ public class VirtualMachine {
 		Integer value = binaryTodecimal(immediate);
 		
 		Data reg1 = this.registers.registers.get(indexReg1);
-		
 		Data reg2 = this.registers.registers.get(indexReg2);
 		
 		boolean check = reg2.valueReg <  value;
@@ -105,6 +101,29 @@ public class VirtualMachine {
 			reg1.valueReg = 1;
 		else
 			reg1.valueReg = 0; 
+	}
+	
+	public void lw(String reg1Code , String reg2Code , String immediate) {
+		int indexReg1 = getRegister(reg1Code);
+		Integer value = binaryTodecimal(immediate);
+		Data reg1 = this.registers.registers.get(indexReg1);
+
+		Integer indexInMem = value/4;  // index in memory in array of memory data 
+		MemData memIndex  = memory[indexInMem];
+		reg1.valueReg = Integer.parseInt(memIndex.value , 2);
+		this.registers.registers.set(indexReg1, reg1);
+		
+	}
+	
+	public void sw(String reg1Code , String reg2Code , String immediate) {
+		int indexReg1 = getRegister(reg1Code);
+		Data reg1 = this.registers.registers.get(indexReg1);
+		
+		Integer indexInMem = Integer.parseInt(immediate , 2);  // index in memory in array of memory data
+		MemData memoryline = memory[indexInMem/4];  // get the line of memory of immediate String to decimal 
+		
+		memoryline.to32bitBinary(reg1.valueReg);
+		memory[indexInMem/4] = memoryline;
 	}
 	
 	/*****************************  End I-type	*********************************/
@@ -121,7 +140,6 @@ public class VirtualMachine {
 		Data reg1 = this.registers.registers.get(indexReg1);
 		Data reg2 = this.registers.registers.get(indexReg2);
 		Data reg3 = this.registers.registers.get(indexReg3);
-		System.out.println(reg1.name + "  " + reg2.name + "  " + reg3.name);
 		reg1.valueReg = reg2.valueReg + reg3.valueReg ;
 		
 		this.registers.registers.set(indexReg1, reg1);
@@ -139,6 +157,34 @@ public class VirtualMachine {
 		
 		reg1.valueReg = reg2.valueReg - reg3.valueReg ;
 		
+		this.registers.registers.set(indexReg1, reg1);
+	}
+	
+	public void and(String reg1Code , String reg2Code , String reg3Code) {
+		int indexReg1 = getRegister(reg1Code);
+		int indexReg2 = getRegister(reg2Code);
+		int indexReg3 = getRegister(reg3Code);
+		
+		
+		Data reg1 = this.registers.registers.get(indexReg1);
+		Data reg2 = this.registers.registers.get(indexReg2);
+		Data reg3 = this.registers.registers.get(indexReg3);
+		
+		reg1.valueReg = reg2.valueReg & reg3.valueReg;
+		this.registers.registers.set(indexReg1, reg1);
+	}
+	
+	public void or(String reg1Code , String reg2Code , String reg3Code) {
+		int indexReg1 = getRegister(reg1Code);
+		int indexReg2 = getRegister(reg2Code);
+		int indexReg3 = getRegister(reg3Code);
+		
+		
+		Data reg1 = this.registers.registers.get(indexReg1);
+		Data reg2 = this.registers.registers.get(indexReg2);
+		Data reg3 = this.registers.registers.get(indexReg3);
+		
+		reg1.valueReg = reg2.valueReg | reg3.valueReg;
 		this.registers.registers.set(indexReg1, reg1);
 	}
 	
@@ -174,36 +220,10 @@ public class VirtualMachine {
 		this.registers.registers.set(indexReg1, reg1);
 	}
 	
-	public void lw(String reg1Code , String reg2Code , String immediate) {
-		int indexReg1 = getRegister(reg1Code);
-		//int indexReg2 = getRegister(reg2Code);
-		Integer value = binaryTodecimal(immediate);
-		
-		Data reg1 = this.registers.registers.get(indexReg1);
-//		Data reg2 = this.registers.registers.get(indexReg2);
-		
-		Integer indexInMem = value/4;  // index in memory in array of memory data 
-		MemData memIndex  = memory[indexInMem];
-		reg1.valueReg = Integer.parseInt(memIndex.value , 2);
-		System.out.println(Integer.parseInt(memIndex.value , 2));
-		this.registers.registers.set(indexReg1, reg1);
-		
-	}
 	
-	public void sw(String reg1Code , String reg2Code , String immediate) {
-		int indexReg1 = getRegister(reg1Code);
-//		int indexReg2 = getRegister(reg2Code);
-//		Integer value = binaryTodecimal(immediate);
-		
-		Data reg1 = this.registers.registers.get(indexReg1);
-//		Data reg2 = this.registers.registers.get(indexReg2);
-		
-		Integer indexInMem = Integer.parseInt(immediate , 2);  // index in memory in array of memory data
-		MemData memoryline = memory[indexInMem/4];  // get the line of memory of immediate String to decimal 
-		
-		memoryline.to32bitBinary(reg1.valueReg);
-		memory[indexInMem/4] = memoryline;
-	}
+	/*********************************** End R-Type  *************************************/
+	
+
 	
 	
 	public void virtualMachine(String machineCode) {
@@ -212,6 +232,9 @@ public class VirtualMachine {
 		String [] machineCodeParts = machineCode.split(" ");
 		System.out.println("|" + machineCodeParts[machineCodeParts.length-1]+"|");
 //		System.out.println("|"+machineCodeParts[machineCodeParts.length - 1 ] + "|");
+		
+	/************************************* I-Type *********************************************/
+		
 		if(machineCodeParts[0].equals("001000")) {
 			this.addi(machineCodeParts[1], machineCodeParts[2], machineCodeParts[3]);
 		}
@@ -231,7 +254,7 @@ public class VirtualMachine {
 			this.sw(machineCodeParts[2], machineCodeParts[1], machineCodeParts[3]);
 		}
 		
-		/********************************************************************************/
+	/************************************* R-Type *******************************************/
 		
 		// ay trim();  bsheel feha ay space b3d el parsing bta3 el machinecode t2keed 2n mfesh space 
 		else if(machineCodeParts[0].equals("000000") && machineCodeParts[machineCodeParts.length-1].equals("100000")) {
@@ -243,9 +266,13 @@ public class VirtualMachine {
 			this.sub(machineCodeParts[3].trim(), machineCodeParts[2].trim(), machineCodeParts[1].trim());
 		}
 		
-//		else if(machineCodeParts[0].equals("000000") && machineCodeParts[machineCodeParts.length-1].equals("100010")) {
-//			this.sub(machineCodeParts[1], machineCodeParts[2], machineCodeParts[3]);
-//		}
+		else if(machineCodeParts[0].equals("000000") && machineCodeParts[machineCodeParts.length-1].equals("100100")) {
+			this.and(machineCodeParts[3].trim(), machineCodeParts[2].trim(), machineCodeParts[1].trim());
+		}
+		
+		else if(machineCodeParts[0].equals("000000") && machineCodeParts[machineCodeParts.length-1].equals("100101")) {
+			this.and(machineCodeParts[3].trim(), machineCodeParts[2].trim(), machineCodeParts[1].trim());
+		}
 		
 		else if(machineCodeParts[0].equals("000000") && machineCodeParts[machineCodeParts.length-1].equals("000000")) {
 			this.sll(machineCodeParts[2].trim(), machineCodeParts[1].trim(), machineCodeParts[4].trim());
@@ -253,6 +280,9 @@ public class VirtualMachine {
 		
 		else if(machineCodeParts[0].equals("000000") && machineCodeParts[machineCodeParts.length-1].equals("101010")) {
 			this.slt(machineCodeParts[2].trim(), machineCodeParts[1].trim(), machineCodeParts[3].trim());
+		}
+		else if(machineCodeParts[0].equals("000000") && machineCodeParts[machineCodeParts.length-1].equals("001000")) {
+			this.jr(machineCodeParts[1].trim());
 		}
 		
 
