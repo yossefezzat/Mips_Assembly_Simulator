@@ -5,8 +5,12 @@ public class VirtualMachine {
 	Registers registers ;
 	MemData [] memory;
 	Integer ProgramCounter;
+	boolean syscall;
+	boolean jalFlag;
 	
 	public VirtualMachine() {
+		this.syscall = false;
+		this.jalFlag = false;
 		this.ProgramCounter = 0;
 		this.registers = new Registers();
 		this.registers.setRegistersMain();
@@ -48,6 +52,18 @@ public class VirtualMachine {
 	public Integer binaryTodecimal(String imm) {
 		Integer decimal = Integer.parseInt(imm, 2);
 		return decimal;
+	}
+	
+	
+	/********************************* Syscall **********************************/
+	
+	public void syscall() {
+		int indexRegv0 = getRegister("00010");
+		Data Reg1 = this.registers.registers.get(indexRegv0);
+		if(Reg1.valueReg == 10) {
+			this.syscall = true;
+		}
+		
 	}
 	
 	/***************************** Start I-type *********************************/
@@ -209,12 +225,14 @@ public class VirtualMachine {
 	}
 	
 	public void jal(String address) {
+		System.out.println("jal index : " + this.ProgramCounter );
 		int index_ra = this.getRegister("11111");
 		Data registerRa = this.registers.registers.get(index_ra);
 		registerRa.valueReg = this.ProgramCounter+1 ;
  		Integer jalTo = Integer.parseInt(address , 2);
-		this.ProgramCounter = jalTo / 4 ;
+		this.ProgramCounter = (jalTo / 4)-1 ;
 		this.registers.registers.set(index_ra, registerRa);
+		jalFlag = true;
 	}
 	
 	public void sll(String reg1Code , String reg2Code , String shmt) {
@@ -242,21 +260,29 @@ public class VirtualMachine {
 
 	
 	
-	public void virtualMachine(String machineCode) {
-		 this.ProgramCounter ++ ;
-		machineCode = machineCode.trim(); //remove the last space in the string of machine code :D <3 7sbayah w n3m el wakel  
+	public void virtualMachine(String machineCode , String []codelines) {
+		machineCode = machineCode.trim(); // remove the last space in the string of machine code :D <3 7sbayah w n3m el wakel  
 		String [] machineCodeParts = machineCode.split(" ");
 		boolean j_type = false;
+		
 	/************************************* J-type *********************************************/	
 		
-	   if(machineCodeParts[0].equals("000011")) {
-		   j_type = true ;
-		   this.jal(machineCodeParts[1]);
+		if(machineCodeParts[0].equals("000011")) {
+			j_type = true ;
+			this.jal(machineCodeParts[1]);
+		}
+			
+	/************************************* J-type *********************************************/	
+		
+		else if(  this.ProgramCounter == Integer.parseInt(machineCodeParts[0] , 2)/4 && codelines[Integer.parseInt(machineCodeParts[0] , 2)/4].trim().equals("syscall") ) {
+			System.out.println(Integer.parseInt(machineCodeParts[0] , 2)/4);
+		    System.out.println("syscall here ");
+		    this.syscall();
 	   }
 		
 	/************************************* I-Type *********************************************/
 		
-	   else if(machineCodeParts[0].equals("001000")) {
+		else if(machineCodeParts[0].equals("001000")) {
 			this.addi(machineCodeParts[1], machineCodeParts[2], machineCodeParts[3]);
 		}
 		else if(machineCodeParts[0].equals("001100")) {
@@ -304,18 +330,9 @@ public class VirtualMachine {
 		else if(machineCodeParts[0].equals("000000") && machineCodeParts[machineCodeParts.length-1].equals("001000")) {
 			this.jr(machineCodeParts[2].trim());  // edit register in function
 		}
-		  
-		
+		if(!jalFlag)
+			this.ProgramCounter++;
+		this.jalFlag = false;
 	}
 	
-//	public static void main (String []args) {
-//	
-//		VirtualMachine vir = new VirtualMachine();
-//		
-//		vir.addi("10001", "11000", "0000000000010010");
-//		
-//		for(int i=0 ; i < vir.registers.registers.size() ; i++){
-//			System.out.println(vir.registers.registers.get(i).valueReg + "\n");
-//		}
-//	}
 }

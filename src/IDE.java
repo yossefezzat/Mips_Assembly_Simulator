@@ -117,21 +117,27 @@ public class IDE extends JFrame {        /////////////////////////   check sw an
 		});
 		contentPane.add(btnRun);
 		
-		JButton btnFetchdecodeexcute = new JButton("Fetch+Decode+Excute");
+		JButton btnFetchdecodeexcute = new JButton("F + D + E");
 		btnFetchdecodeexcute.setBounds(239, 12, 154, 23);
 		btnFetchdecodeexcute.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				String message = " no lines available to run !!" ;
-				//
-				if(machineCode.instructions.size() == VM.ProgramCounter || assemblycode.getText().isEmpty()) {
-					  JOptionPane.showMessageDialog(new JFrame(), message, "Error",
-						        JOptionPane.ERROR_MESSAGE);
-					  VM.ProgramCounter = 0 ;
+				String message = " End :D !!" ;
+
+				if(VM.syscall) {
+					JOptionPane.showMessageDialog(new JFrame(), message, "End Program",
+					        JOptionPane.ERROR_MESSAGE);
+					System.exit(0);
+				}
+				else if(machineCode.instructions.size() == VM.ProgramCounter || assemblycode.getText().isEmpty()  ) {  
+					JOptionPane.showMessageDialog(new JFrame(), message, "Error",
+					        JOptionPane.ERROR_MESSAGE);
+				  VM.ProgramCounter = 0;
+					  
 				} else {
 				AssemblyCode = machineCode.getLineLine(VM.ProgramCounter);
 				machinecode.setText(machinecode.getText() + AssemblyCode);
-				VM.virtualMachine(AssemblyCode);
+				VM.virtualMachine(AssemblyCode , machineCode.codelines);
 				memory.setText(VM.setMemory());
 				registers.setText(VM.setRegisters());
 				ProgramCount.setText(Integer.toString(VM.ProgramCounter));
