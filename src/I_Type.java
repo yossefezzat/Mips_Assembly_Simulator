@@ -3,12 +3,15 @@ import java.util.ArrayList;
 
 public class I_Type {
 	
-		String op , rs= "00000" , rt , addressOrConstant="0000000000000000" ;  // op = 6 bits + rs = 5 bits + rt = 5 bits + address = 16 bits =    32 bits
+		String op , rs= "00000" , rt="00000" , addressOrConstant="0000000000000000" ;  // op = 6 bits + rs = 5 bits + rt = 5 bits + address = 16 bits =    32 bits
 		String [] lines; 
 		ArrayList<String>machineCode;
 		ArrayList<Data> allRegisters;
 		Integer immediate;
 		Registers registers;
+		
+		
+
 
 		public I_Type(String []lines) {  // to get the label of the beq and bne to jumb to address
 			// TODO Auto-generated constructor stub
@@ -17,6 +20,25 @@ public class I_Type {
 			registers = new Registers();
 			allRegisters = registers.setRegistersMain(); // set all registers in allRegisters ArrayList
 			this.lines = lines;
+		}
+		
+		public int indexJumb(String label) {
+			int index = 0 ; 
+			for(int i = 0 ; i < this.lines.length ; i++) {
+				if(lines[i].trim().equals((label+":"))) {
+					index = i;
+					break;
+				}
+			}
+			return index;
+		}
+		public String to16bitBinary(int decimal) {
+			
+			String tobinary = Integer.toBinaryString(decimal);
+			for(int i = tobinary.length() ; i < 16 ; i++) {
+				tobinary = "0" + tobinary;
+			}
+			return tobinary;
 		}
 		
 		public  String to5bits(String decimal){
@@ -65,9 +87,10 @@ public class I_Type {
 			machineCode.add(findRegister(rType.rs));
 		}
 		else if(rType.operand.equals("beq")) {
+			machineCode.add("000100");
+			System.out.println(rType.rs + "     " + rType.rt);
 			machineCode.add(findRegister(rType.rs));
 			machineCode.add(findRegister(rType.rt));
-			machineCode.add("000100");
 		}
 		else if(rType.operand.equals("bne")) {
 			machineCode.add("000101");
@@ -94,7 +117,6 @@ public class I_Type {
 			System.out.println("error in I instruction !!");
 		}
 		
-		
 		if(rType.immediate.matches("\\d+")) {
 			immediate = Integer.parseInt(rType.immediate);
 			addressOrConstant = Integer.toBinaryString(immediate);
@@ -102,17 +124,8 @@ public class I_Type {
                 this.addressOrConstant = "0" + this.addressOrConstant;
             }
 		} else {  // beq  ,  bne  check for label in immediate  
-			for(int i = 0 ; i < this.lines.length ;i++) {
-				if(this.lines[i].equals(rType.immediate)) {
-					addressOrConstant = Integer.toBinaryString(i);
-					for (int j = 0 ; j < 16; j++) {
-		                this.addressOrConstant = "0" + this.addressOrConstant;
-		            }
-				}
-			}
-			if(this.addressOrConstant.equals("0000000000000000")) {
-				rType.immediate = "-"; // if label is not in the code return in immediate "-" to be detected 
-			}
+			System.out.println("beq heree");
+			this.addressOrConstant = to16bitBinary((indexJumb(rType.immediate.trim()))*4 );	
 		}
 		
 		machineCode.add(this.addressOrConstant);

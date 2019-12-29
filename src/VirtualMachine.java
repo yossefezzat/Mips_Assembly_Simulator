@@ -144,6 +144,30 @@ public class VirtualMachine {
 		memory[indexInMem/4] = memoryline;
 	}
 	
+	public void beq(String reg1Code , String reg2Code , String immediate) {
+		int indexReg1 = getRegister(reg1Code);
+		int indexReg2 = getRegister(reg2Code);
+		Data reg1 = this.registers.registers.get(indexReg1);
+		Data reg2 = this.registers.registers.get(indexReg2);
+		
+		if(reg1.valueReg == reg2.valueReg ) {
+			Integer jumbTo = Integer.parseInt(immediate , 2);
+			this.ProgramCounter = (jumbTo / 4)-1 ;
+		}
+	}
+	public void bne(String reg1Code , String reg2Code , String immediate) {
+		int indexReg1 = getRegister(reg1Code);
+		int indexReg2 = getRegister(reg2Code);
+		Data reg1 = this.registers.registers.get(indexReg1);
+		Data reg2 = this.registers.registers.get(indexReg2);
+		
+		if(reg1.valueReg != reg2.valueReg ) {
+			Integer jumbTo = Integer.parseInt(immediate , 2);
+			this.ProgramCounter = (jumbTo / 4)-1 ;
+		}
+		
+	}
+	
 	/*****************************  End I-type	*********************************/
 	
 	/***************************** Start R-type *********************************/
@@ -235,6 +259,11 @@ public class VirtualMachine {
 		jalFlag = true;
 	}
 	
+	public void jumb(String address) {
+		Integer jumbTo = Integer.parseInt(address , 2);
+		this.ProgramCounter = (jumbTo / 4)-1 ;
+	}
+	
 	public void sll(String reg1Code , String reg2Code , String shmt) {
 		
 		int indexReg1 = getRegister(reg1Code);
@@ -261,7 +290,9 @@ public class VirtualMachine {
 	
 	
 	public void virtualMachine(String machineCode , String []codelines) {
-		machineCode = machineCode.trim(); // remove the last space in the string of machine code :D <3 7sbayah w n3m el wakel  
+		if(jalFlag)
+			this.ProgramCounter = this.ProgramCounter+2;
+		machineCode = machineCode.trim(); // remove the last space in the string of machine code :D 7sbayah w n3m el wakel  
 		String [] machineCodeParts = machineCode.split(" ");
 		boolean j_type = false;
 		
@@ -273,6 +304,9 @@ public class VirtualMachine {
 		}
 			
 	/************************************* J-type *********************************************/	
+		else if(machineCodeParts[0].equals("000010")) {
+			this.jumb(machineCodeParts[1].trim());  // edit register in function
+		}
 		
 		else if(  this.ProgramCounter == Integer.parseInt(machineCodeParts[0] , 2)/4 && codelines[Integer.parseInt(machineCodeParts[0] , 2)/4].trim().equals("syscall") ) {
 			System.out.println(Integer.parseInt(machineCodeParts[0] , 2)/4);
@@ -299,6 +333,12 @@ public class VirtualMachine {
 		}
 		else if(machineCodeParts[0].equals("101011")) {
 			this.sw(machineCodeParts[2], machineCodeParts[1], machineCodeParts[3]);
+		}
+		else if(machineCodeParts[0].equals("000100")) {
+			this.beq(machineCodeParts[2], machineCodeParts[1], machineCodeParts[3]);
+		}
+		else if(machineCodeParts[0].equals("000101")) {
+			this.bne(machineCodeParts[2], machineCodeParts[1], machineCodeParts[3]);
 		}
 		
 	/************************************* R-Type *******************************************/
@@ -330,8 +370,7 @@ public class VirtualMachine {
 		else if(machineCodeParts[0].equals("000000") && machineCodeParts[machineCodeParts.length-1].equals("001000")) {
 			this.jr(machineCodeParts[2].trim());  // edit register in function
 		}
-		if(!jalFlag)
-			this.ProgramCounter++;
+		this.ProgramCounter++;
 		this.jalFlag = false;
 	}
 	

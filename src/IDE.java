@@ -129,7 +129,7 @@ public class IDE extends JFrame {        /////////////////////////   check sw an
 					        JOptionPane.ERROR_MESSAGE);
 					System.exit(0);
 				}
-				else if(machineCode.instructions.size() == VM.ProgramCounter || assemblycode.getText().isEmpty()  ) {  
+				else if( assemblycode.getText().isEmpty()  ) {  
 					JOptionPane.showMessageDialog(new JFrame(), message, "Error",
 					        JOptionPane.ERROR_MESSAGE);
 				  VM.ProgramCounter = 0;

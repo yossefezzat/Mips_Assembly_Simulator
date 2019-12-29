@@ -58,7 +58,7 @@ public class R_Type {
 	public ArrayList<String> evaluateR(instructionData rType) {
 		machineCode.add("000000"); // opcode
 		
-		String shamt = "00000";  String shmt$ra = "00000";
+		String shamt = "00000";
 		String function;
 		shamt = to5bits(rType.shmt);
 		function = to6bits(rType.func);
@@ -110,7 +110,7 @@ public class R_Type {
 		}
 		else if (rType.operand.equals("jr")) {
 			machineCode.add("00000");
-			machineCode.add(findRegister(rType.rt));
+			machineCode.add(findRegister(rType.rs));
 			machineCode.add("00000");
 			machineCode.add("00000");
 			machineCode.add(function);

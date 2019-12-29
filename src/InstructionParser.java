@@ -48,11 +48,6 @@ public class InstructionParser {
 			}
 			tempList.add(splitedLine[i]);
 		}
-
-//        for(String ss : tempList) {
-//        	System.out.println(ss);
-//        }
-
 	}
 
 	public boolean check4Var(ArrayList<String> input) {
@@ -140,8 +135,8 @@ public class InstructionParser {
 			lineCode.type = "I";
 			lineCode.operand = "beq"; // 000100
 			lineCode.labelCheck = true;
-			lineCode.rs = input.get(1);
-			lineCode.rt = input.get(2);
+			lineCode.rs = input.get(1).trim();
+			lineCode.rt = input.get(2).trim();
 			lineCode.imm = true;
 			lineCode.immediate = input.get(3);
 			lineCode.func = "0";
@@ -149,8 +144,9 @@ public class InstructionParser {
 			lineCode.type = "I";
 			lineCode.operand = "bne"; // 000101
 			lineCode.labelCheck = true;
-			lineCode.rs = input.get(1);
-			lineCode.rt = input.get(2);
+			lineCode.imm = true;
+			lineCode.rs = input.get(1).trim();
+			lineCode.rt = input.get(2).trim();
 			lineCode.immediate = input.get(3);
 			lineCode.func = "0";
 		} else if (input.get(0).equals("slti")) {
@@ -168,21 +164,27 @@ public class InstructionParser {
 		}
 		// to be checked
 		if (formatter(1) && formatter(2)) {
-			lineCode.rd = input.get(1);
-			lineCode.rs = input.get(2);
+
 			input.set(3, input.get(3).trim());
 			if (formatter(3) && lineCode.imm == false) {
+				lineCode.rd = input.get(1);
+				lineCode.rs = input.get(2);
 				lineCode.rt = input.get(3);
 				
-			} else if (input.get(3).matches("\\d+") && lineCode.imm == true) {
-				
+			} else if (input.get(3).matches("\\d+") && lineCode.imm == true) {				
 				if (input.get(0).equals("sll")) { // handling sll immediate value
+					lineCode.rd = input.get(1);
+					lineCode.rs = input.get(2);
 					lineCode.shmt = input.get(3);
 				} else {
+					lineCode.rt = input.get(1);
+					lineCode.rs = input.get(2);
 					lineCode.immediate = input.get(3).trim();
 				}
 			} else if (input.get(3).matches("[a-zA-z]+") && lineCode.labelCheck == true) {
-				lineCode.immediate = input.get(3);
+				lineCode.rs = input.get(1);
+				lineCode.rt = input.get(2);
+				lineCode.immediate = input.get(3).trim();
 			} else {
 				System.out.println("error in paramter 3 ");
 				return false;
@@ -192,7 +194,7 @@ public class InstructionParser {
 			System.out.println("error in register operand  or register 1  ");
 			return false;
 		}
-
+		System.out.println("parser : "  + lineCode.rs + "   " + lineCode.rt );
 		return true;
 	}
 
@@ -249,15 +251,15 @@ public class InstructionParser {
 		} else if (input.get(0).equals("jr")) {
 			lineCode.operand = "jr";
 			lineCode.type = "R";
-			lineCode.rt = input.get(1);
+			lineCode.rs = input.get(1);
 			lineCode.func = "8";
 		} else {
 			return false;
 		}
 		if (input.get(1).trim().matches("[a-zA-Z]+")) {
 			lineCode.address = input.get(1);
-		} else if (input.get(1).equals("$ra") && ! lineCode.operand.equals("jal")) {
-			lineCode.rt = "$ra";
+		} else if (input.get(1).trim().equals("$ra") && ! lineCode.operand.equals("jal")) {
+			lineCode.rs = "$ra";
 		} else {
 			System.out.println("error in second parameter in J instruction : " + input.get(0));
 			return false;
@@ -291,5 +293,4 @@ public class InstructionParser {
 
 		return instruction;
 	}
-
 }

@@ -40,7 +40,7 @@ public class J_Type {
 		}
 		else if(JType.operand.equals("j")) {
 			machineCode.add("000010");
-			machineCode.add(to26bitBinary(indexJumb(JType.address)));
+			machineCode.add(to26bitBinary((indexJumb(JType.address.trim())+1)*4));
 		
 		}
 		return this.machineCode;
